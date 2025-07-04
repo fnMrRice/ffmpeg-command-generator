@@ -47,6 +47,16 @@
           <span style="font-weight: 500; color: #2574a9;">启用音频</span>
         </label>
       </div>
+      <div class="switch-row" style="margin-bottom: 18px; display: flex; gap: 32px;">
+        <label class="switch-label" style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="copy_video" class="switch-checkbox" onchange="onCopyVideoChange();generateCommand()">
+          <span style="font-weight: 500; color: #2574a9;">复制视频流</span>
+        </label>
+        <label class="switch-label" style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="copy_audio" class="switch-checkbox" onchange="onCopyAudioChange();generateCommand()">
+          <span style="font-weight: 500; color: #2574a9;">复制音频流</span>
+        </label>
+      </div>
       <div class="tab-btns" id="tabBtns">
         <button type="button" id="tabVideoBtn" class="active" onclick="showTab('video', true)">视频输出</button>
         <button type="button" id="tabAudioBtn" onclick="showTab('audio', true)">音频输出</button>
@@ -56,7 +66,6 @@
           <label for="vcodec">视频编码器:</label>
           <div class="input-area">
             <select id="vcodec" onchange="onVCodecChange();updateCrfDefault();generateCommand()">
-              <option value="copy" selected>复制（不转码）</option>
               <option value="libx264">H.264 (x264)</option>
               <option value="libx265">H.265 (x265)</option>
             </select>
@@ -206,9 +215,10 @@
           <label for="acodec_audio">音频编码器:</label>
           <div class="input-area">
             <select id="acodec_audio" onchange="onACodecChange()">
-              <option value="copy" selected>复制（不转码）</option>
               <option value="aac">AAC</option>
               <option value="mp3">MP3</option>
+              <option value="pcm_s16le">PCM (pcm_s16le)</option>
+              <option value="wav">WAV (pcm_s16le+封装)</option>
             </select>
           </div>
         </div>

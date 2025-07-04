@@ -1,8 +1,14 @@
 // 自动输出名逻辑
+function getInputFileExt(inputFile) {
+    const m = inputFile.match(/\.([a-zA-Z0-9]+)$/);
+    return m ? ("." + m[1].toLowerCase()) : ".mp4";
+}
+
 function getDefaultOutputName(options) {
     const {
         vcodec, acodec, resolution, pix_fmt, profileSel, profile, profileVer,
-        ratecontrol, rcVal, tune, bframes, preset, gop, framerate, hdr, time_start, time_end
+        ratecontrol, rcVal, tune, bframes, preset, gop, framerate, hdr, time_start, time_end,
+        enableVideo, enableAudio, copyVideo, copyAudio, inputFile
     } = options;
 
     let parts = [];
@@ -31,14 +37,34 @@ function getDefaultOutputName(options) {
         parts.push(tstr);
     }
 
-    // 根据 enableVideo 判断输出扩展名
-    let ext = (options.enableVideo === true) ? ".mp4" : ".mp3";
+    let ext = ".mp4";
+    if (enableVideo) {
+        if (copyVideo) {
+            ext = getInputFileExt(inputFile);
+        } else {
+            ext = ".mp4";
+        }
+    } else if (enableAudio) {
+        if (copyAudio) {
+            ext = getInputFileExt(inputFile);
+        } else if (acodec === "mp3") {
+            ext = ".mp3";
+        } else if (acodec === "aac") {
+            ext = ".m4a";
+        } else if (acodec === "wav" || acodec === "pcm_s16le") {
+            ext = ".wav";
+        } else {
+            ext = ".mp3";
+        }
+    }
     return (parts.length > 0 ? parts.join('_') : "output") + ext;
 }
 
 function GenerateVideoCommand({ enableVideo, enableAudio, time_start, time_end, inputFile, outputFile }) {
-    const vcodec = document.getElementById('vcodec').value;
-    const acodec = enableAudio ? (document.getElementById('acodec_audio').value || 'copy') : 'none';
+    const copyVideo = document.getElementById('copy_video').checked;
+    const copyAudio = document.getElementById('copy_audio').checked;
+    const vcodec = copyVideo ? "copy" : document.getElementById('vcodec').value;
+    const acodec = enableAudio ? (copyAudio ? "copy" : (document.getElementById('acodec_audio').value || 'aac')) : 'none';
     const resSel = document.getElementById('resolution_select').value;
     const resolution = resSel === 'custom'
         ? document.getElementById('resolution').value.trim()
@@ -63,7 +89,7 @@ function GenerateVideoCommand({ enableVideo, enableAudio, time_start, time_end, 
     const options = {
         vcodec, acodec, resolution, pix_fmt, profileSel, profile, profileVer,
         ratecontrol, rcVal: rc.rcval, tune, bframes, preset, gop, framerate, hdr, extra,
-        time_start, time_end
+        time_start, time_end, enableVideo, enableAudio, copyVideo, copyAudio, inputFile
     };
 
     if (!inputFile) {
@@ -82,7 +108,7 @@ function GenerateVideoCommand({ enableVideo, enableAudio, time_start, time_end, 
 
     // 视频编码器
     if (enableVideo) {
-        if (vcodec === "copy") {
+        if (copyVideo) {
             cmd += " -c:v copy";
         } else if (vcodec) {
             cmd += ` -c:v ${vcodec}`;
@@ -93,7 +119,7 @@ function GenerateVideoCommand({ enableVideo, enableAudio, time_start, time_end, 
 
     // 音频编码器
     if (enableAudio) {
-        if (acodec === "copy") {
+        if (copyAudio) {
             cmd += " -c:a copy";
         } else if (acodec) {
             cmd += ` -c:a ${acodec}`;
@@ -103,7 +129,7 @@ function GenerateVideoCommand({ enableVideo, enableAudio, time_start, time_end, 
     }
 
     // 只有 x264/x265 显示高级项
-    if (vcodec === "libx264" || vcodec === "libx265") {
+    if (!copyVideo && (vcodec === "libx264" || vcodec === "libx265")) {
         if (resolution && resolution.toLowerCase() !== "custom") {
             cmd += ` -s ${resolution}`;
         }
@@ -151,18 +177,27 @@ function GenerateVideoCommand({ enableVideo, enableAudio, time_start, time_end, 
 }
 
 function GenerateAudioCommand({ enableVideo, enableAudio, time_start, time_end, inputFile, outputFile }) {
-    const acodec = document.getElementById('acodec_audio').value;
+    const copyAudio = document.getElementById('copy_audio').checked;
+    const acodecSel = copyAudio ? "copy" : document.getElementById('acodec_audio').value;
+    let acodec = acodecSel;
     const abitrate = document.getElementById('abitrate').value.trim();
     const achannels = document.getElementById('achannels').value.trim();
     const asample = document.getElementById('asample').value.trim();
     const aextra = document.getElementById('aextra').value.trim();
+
+    // wav特殊处理
+    let forceExt = null;
+    if (acodecSel === "wav" || acodecSel === "pcm_s16le") {
+        acodec = "pcm_s16le";
+        forceExt = ".wav";
+    }
 
     if (!inputFile) {
         return '请输入输入文件名';
     }
     if (!outputFile) {
         let parts = [];
-        if (!isDefault(acodec, 'copy')) parts.push(acodec);
+        if (!isDefault(acodecSel, 'copy')) parts.push(acodecSel);
         if (!isDefault(abitrate, '')) parts.push(abitrate.replace(/[^\w\-\.]/g, ''));
         if (!isDefault(achannels, '')) parts.push(achannels + "ch");
         if (!isDefault(asample, '')) parts.push(asample + "hz");
@@ -170,7 +205,22 @@ function GenerateAudioCommand({ enableVideo, enableAudio, time_start, time_end, 
             let tstr = (time_start ? ("from" + time_start.replace(/:/g, "")) : "") + (time_end ? ("to" + time_end.replace(/:/g, "")) : "");
             parts.push(tstr);
         }
-        outputFile = (parts.length > 0 ? parts.join('_') : "output") + ".mp3";
+        let ext;
+        if (copyAudio) {
+            ext = getInputFileExt(inputFile);
+        } else if (forceExt) {
+            ext = forceExt;
+        } else if (acodecSel === "mp3") {
+            ext = ".mp3";
+        } else if (acodecSel === "aac") {
+            ext = ".m4a";
+        } else {
+            ext = ".mp3";
+        }
+        outputFile = (parts.length > 0 ? parts.join('_') : "output") + ext;
+    } else if (forceExt && !outputFile.endsWith(forceExt)) {
+        // 如果用户手动填写但没加扩展名，自动补全
+        outputFile = outputFile.replace(/\.\w+$/, "") + forceExt;
     }
 
     let cmd = `ffmpeg`;
@@ -181,11 +231,11 @@ function GenerateAudioCommand({ enableVideo, enableAudio, time_start, time_end, 
     // 视频禁用
     cmd += " -vn";
     // 音频
-    if (acodec === "copy") {
+    if (acodecSel === "copy") {
         cmd += " -c:a copy";
-    } else if (acodec) {
+    } else if (acodecSel) {
         cmd += ` -c:a ${acodec}`;
-        if (abitrate) cmd += ` -b:a ${abitrate}`;
+        if (abitrate && acodecSel !== "wav" && acodecSel !== "pcm_s16le") cmd += ` -b:a ${abitrate}`;
         if (achannels) cmd += ` -ac ${achannels}`;
         if (asample) cmd += ` -ar ${asample}`;
         if (aextra) cmd += ' ' + aextra;
@@ -198,6 +248,8 @@ function GenerateAudioCommand({ enableVideo, enableAudio, time_start, time_end, 
 function generateCommand() {
     const enableVideo = document.getElementById('enable_video').checked;
     const enableAudio = document.getElementById('enable_audio').checked;
+    const copyVideo = document.getElementById('copy_video').checked;
+    const copyAudio = document.getElementById('copy_audio').checked;
     const time_start = document.getElementById('time_start').value.trim();
     const time_end = document.getElementById('time_end').value.trim();
     const inputFile = document.getElementById('inputFile').value.trim();
