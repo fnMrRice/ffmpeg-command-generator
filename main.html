@@ -35,26 +35,28 @@
           <span style="color:#888; font-size:13px; margin-left:8px;">（可选，格式为hh:mm:ss[.xxx]）</span>
         </div>
       </div>
-      <div class="switch-row" style="margin-bottom: 16px; display: flex; gap: 32px;">
+      <div class="switch-row" style="margin-bottom: 10px; display: flex; gap: 32px;">
         <label class="switch-label" style="display: flex; align-items: center; gap: 8px;">
-          <input type="checkbox" id="enable_video" class="switch-checkbox styled-switch" checked onchange="toggleAVTabs()">
+          <input type="checkbox" id="copy_video" class="switch-checkbox styled-switch" onchange="onCopyVideoChange();generateCommand()">
           <span class="switch-slider"></span>
-          <span style="font-weight: 500; color: #2574a9;">启用视频</span>
-        </label>
-        <label class="switch-label" style="display: flex; align-items: center; gap: 8px;">
-          <input type="checkbox" id="enable_audio" class="switch-checkbox styled-switch" checked onchange="toggleAVTabs()">
-          <span class="switch-slider"></span>
-          <span style="font-weight: 500; color: #2574a9;">启用音频</span>
-        </label>
-      </div>
-      <div class="switch-row" style="margin-bottom: 18px; display: flex; gap: 32px;">
-        <label class="switch-label" style="display: flex; align-items: center; gap: 8px;">
-          <input type="checkbox" id="copy_video" class="switch-checkbox" onchange="onCopyVideoChange();generateCommand()">
           <span style="font-weight: 500; color: #2574a9;">复制视频流</span>
         </label>
         <label class="switch-label" style="display: flex; align-items: center; gap: 8px;">
-          <input type="checkbox" id="copy_audio" class="switch-checkbox" onchange="onCopyAudioChange();generateCommand()">
+          <input type="checkbox" id="copy_audio" class="switch-checkbox styled-switch" onchange="onCopyAudioChange();generateCommand()">
+          <span class="switch-slider"></span>
           <span style="font-weight: 500; color: #2574a9;">复制音频流</span>
+        </label>
+      </div>
+      <div class="switch-row" style="margin-bottom: 16px; display: flex; gap: 32px;">
+        <label class="switch-label" style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="enable_video" class="switch-checkbox styled-switch" checked onchange="onEnableVideoChange();toggleAVTabs()">
+          <span class="switch-slider"></span>
+          <span style="font-weight: 500; color: #2574a9;">启用视频转码</span>
+        </label>
+        <label class="switch-label" style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="enable_audio" class="switch-checkbox styled-switch" checked onchange="onEnableAudioChange();toggleAVTabs()">
+          <span class="switch-slider"></span>
+          <span style="font-weight: 500; color: #2574a9;">启用音频转码</span>
         </label>
       </div>
       <div class="tab-btns" id="tabBtns">

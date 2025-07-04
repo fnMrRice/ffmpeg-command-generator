@@ -255,3 +255,35 @@ function copyCommand() {
         }, 1200);
     });
 }
+
+function onCopyVideoChange() {
+    const copy = document.getElementById('copy_video');
+    const enable = document.getElementById('enable_video');
+    if (copy.checked) {
+        enable.checked = false;
+    }
+}
+
+function onEnableVideoChange() {
+    const copy = document.getElementById('copy_video');
+    const enable = document.getElementById('enable_video');
+    if (enable.checked) {
+        copy.checked = false;
+    }
+}
+
+function onCopyAudioChange() {
+    const copy = document.getElementById('copy_audio');
+    const enable = document.getElementById('enable_audio');
+    if (copy.checked) {
+        enable.checked = false;
+    }
+}
+
+function onEnableAudioChange() {
+    const copy = document.getElementById('copy_audio');
+    const enable = document.getElementById('enable_audio');
+    if (enable.checked) {
+        copy.checked = false;
+    }
+}
