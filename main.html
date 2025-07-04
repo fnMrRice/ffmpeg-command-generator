@@ -37,31 +37,31 @@
       </div>
       <div class="switch-row" style="margin-bottom: 10px; display: flex; gap: 32px;">
         <label class="switch-label" style="display: flex; align-items: center; gap: 8px;">
-          <input type="checkbox" id="copy_video" class="switch-checkbox styled-switch" onchange="onCopyVideoChange();generateCommand()">
+          <input type="checkbox" id="copy_video" class="switch-checkbox styled-switch" checked onchange="onCopyVideoChange();generateCommand()">
           <span class="switch-slider"></span>
           <span style="font-weight: 500; color: #2574a9;">复制视频流</span>
         </label>
         <label class="switch-label" style="display: flex; align-items: center; gap: 8px;">
-          <input type="checkbox" id="copy_audio" class="switch-checkbox styled-switch" onchange="onCopyAudioChange();generateCommand()">
+          <input type="checkbox" id="copy_audio" class="switch-checkbox styled-switch" checked onchange="onCopyAudioChange();generateCommand()">
           <span class="switch-slider"></span>
           <span style="font-weight: 500; color: #2574a9;">复制音频流</span>
         </label>
       </div>
       <div class="switch-row" style="margin-bottom: 16px; display: flex; gap: 32px;">
         <label class="switch-label" style="display: flex; align-items: center; gap: 8px;">
-          <input type="checkbox" id="enable_video" class="switch-checkbox styled-switch" checked onchange="onEnableVideoChange();toggleAVTabs()">
+          <input type="checkbox" id="enable_video" class="switch-checkbox styled-switch" onchange="onEnableVideoChange();toggleAVTabs()">
           <span class="switch-slider"></span>
           <span style="font-weight: 500; color: #2574a9;">启用视频转码</span>
         </label>
         <label class="switch-label" style="display: flex; align-items: center; gap: 8px;">
-          <input type="checkbox" id="enable_audio" class="switch-checkbox styled-switch" checked onchange="onEnableAudioChange();toggleAVTabs()">
+          <input type="checkbox" id="enable_audio" class="switch-checkbox styled-switch" onchange="onEnableAudioChange();toggleAVTabs()">
           <span class="switch-slider"></span>
           <span style="font-weight: 500; color: #2574a9;">启用音频转码</span>
         </label>
       </div>
-      <div class="tab-btns" id="tabBtns">
-        <button type="button" id="tabVideoBtn" class="active" onclick="showTab('video', true)">视频输出</button>
-        <button type="button" id="tabAudioBtn" onclick="showTab('audio', true)">音频输出</button>
+      <div class="tab-btns" id="tabBtns" style="display: none;">
+        <button type="button" id="tabVideoBtn" class="active" onclick="showTab('video', true)">视频配置</button>
+        <button type="button" id="tabAudioBtn" onclick="showTab('audio', true)">音频配置</button>
       </div>
       <div id="tabVideo" class="tab-content">
         <div class="label-row">
@@ -268,6 +268,64 @@
     updateRateControlConfig();
     toggleAVTabs();
     generateCommand();
+
+    // 仅启用视频或音频时只显示对应tab按钮
+    function updateTabBtnsVisibility() {
+      const enableVideo = document.getElementById('enable_video').checked;
+      const enableAudio = document.getElementById('enable_audio').checked;
+      const tabBtns = document.getElementById('tabBtns');
+      const tabVideoBtn = document.getElementById('tabVideoBtn');
+      const tabAudioBtn = document.getElementById('tabAudioBtn');
+      if (enableVideo && !enableAudio) {
+        tabBtns.style.display = '';
+        tabVideoBtn.style.display = '';
+        tabAudioBtn.style.display = 'none';
+        tabVideoBtn.classList.add('active');
+        tabAudioBtn.classList.remove('active');
+        showTab('video', true);
+      } else if (!enableVideo && enableAudio) {
+        tabBtns.style.display = '';
+        tabVideoBtn.style.display = 'none';
+        tabAudioBtn.style.display = '';
+        tabAudioBtn.classList.add('active');
+        tabVideoBtn.classList.remove('active');
+        showTab('audio', true);
+      } else if (enableVideo && enableAudio) {
+        tabBtns.style.display = '';
+        tabVideoBtn.style.display = '';
+        tabAudioBtn.style.display = '';
+        // 保持原有tab激活逻辑
+      } else {
+        tabBtns.style.display = 'none';
+      }
+    }
+
+    // 覆盖 toggleAVTabs 以支持 tab 按钮显示逻辑
+    function toggleAVTabs() {
+      const enableVideo = document.getElementById('enable_video').checked;
+      const enableAudio = document.getElementById('enable_audio').checked;
+      updateTabBtnsVisibility();
+      if (enableVideo && !enableAudio) {
+        document.getElementById('tabVideo').style.display = '';
+        document.getElementById('tabAudio').style.display = 'none';
+      } else if (!enableVideo && enableAudio) {
+        document.getElementById('tabVideo').style.display = 'none';
+        document.getElementById('tabAudio').style.display = '';
+      } else if (enableVideo && enableAudio) {
+        if (document.getElementById('tabVideoBtn').classList.contains('active')) {
+          showTab('video', true);
+        } else {
+          showTab('audio', true);
+        }
+      } else {
+        document.getElementById('tabVideo').style.display = 'none';
+        document.getElementById('tabAudio').style.display = 'none';
+      }
+      generateCommand();
+    }
+
+    // 页面加载后初始化tab按钮显示
+    updateTabBtnsVisibility();
   </script>
 </body>
 
