@@ -1,0 +1,156 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 40px;
+    background: #f7f8fa;
+}
+
+.main-box {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px #0001;
+    max-width: 780px;
+    margin: auto;
+    padding: 32px 28px 28px 28px;
+}
+
+.tab-btns {
+    margin-bottom: 18px;
+}
+
+.tab-btns button {
+    padding: 8px 18px;
+    margin-right: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    background: #fafbfc;
+    cursor: pointer;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    transition: background 0.15s;
+}
+
+.tab-btns button.active {
+    background: #fff;
+    font-weight: bold;
+    border-bottom: 1px solid #fff;
+    color: #2574a9;
+}
+
+.tab-content {
+    border: 1px solid #ccc;
+    padding: 24px 28px 18px 18px;
+    border-radius: 0 8px 8px 8px;
+    background: #fff;
+}
+
+label {
+    display: block;
+    margin-top: 16px;
+}
+
+.inline {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.small {
+    width: 110px;
+}
+
+input,
+select {
+    width: 300px;
+    padding: 4px;
+    border-radius: 4px;
+    border: 1px solid #d0d0d0;
+    background: #fafbfc;
+}
+
+input:focus,
+select:focus {
+    border-color: #2574a9;
+    outline: none;
+    background: #fff;
+}
+
+#command-box {
+    margin-top: 32px;
+    position: relative;
+}
+
+#command-label {
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #2574a9;
+    letter-spacing: .5px;
+}
+
+#command-block {
+    background: #282c34;
+    color: #f5f5f5;
+    font-size: 16px;
+    font-family: 'Fira Mono', 'Consolas', monospace;
+    line-height: 1.7;
+    white-space: pre-line;
+    word-break: break-all;
+    border: 1px solid #e3e3e3;
+    border-radius: 9px;
+    padding: 18px 22px 18px 22px;
+    margin-top: 2px;
+    margin-bottom: 0;
+    min-height: 42px;
+    box-sizing: border-box;
+    user-select: all;
+    overflow-x: auto;
+}
+
+#copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 18px;
+    z-index: 2;
+    border: none;
+    background: #2574a9;
+    color: #fff;
+    padding: 5px 18px;
+    border-radius: 5px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.18s;
+    opacity: 0.92;
+}
+
+#copy-btn.copied {
+    background: #37d67a;
+    color: #222;
+}
+
+@media (max-width: 700px) {
+    .main-box {
+        padding: 8px;
+    }
+
+    .tab-content {
+        padding: 8px;
+    }
+
+    input,
+    select {
+        width: 95%;
+    }
+
+    #command-box {
+        padding: 0;
+    }
+
+    #command-block {
+        font-size: 13px;
+        padding: 12px 8px;
+    }
+
+    #copy-btn {
+        right: 7px;
+        top: 7px;
+        font-size: 13px;
+    }
+}
