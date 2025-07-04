@@ -211,42 +211,6 @@ function isDefault(value, def) {
     return value === def || value === "" || value === undefined || value === null;
 }
 
-// 自动输出名逻辑
-function getDefaultOutputName(options) {
-    const {
-        vcodec, acodec, resolution, pix_fmt, profileSel, profile, profileVer,
-        ratecontrol, rcVal, tune, bframes, preset, gop, framerate, hdr, time_start, time_end
-    } = options;
-
-    let parts = [];
-    if (!isDefault(vcodec, 'copy')) parts.push(vcodec);
-    if (!isDefault(acodec, 'copy')) parts.push(acodec);
-    if (!isDefault(resolution, '')) parts.push(resolution.replace(/[^\w\-x]/g, ''));
-    if (!isDefault(pix_fmt, '')) parts.push(pix_fmt);
-    if (!isDefault(profileSel, '') || !isDefault(profile, '')) {
-        let prof = profileSel === "other" ? profile : profileSel;
-        if (prof) parts.push(prof);
-        if (!isDefault(profileVer, '')) parts.push("L" + profileVer.replace(/[^\w\-\.]/g, ''));
-    }
-    if (!isDefault(ratecontrol, '')) {
-        let rcPart = ratecontrol;
-        if (!isDefault(rcVal, '')) rcPart += "_" + rcVal.replace(/[^\w\-\.]/g, '');
-        parts.push(rcPart);
-    }
-    if (!isDefault(tune, '')) parts.push(tune.replace(/[^\w\-]/g, ''));
-    if (!isDefault(bframes, '')) parts.push(bframes === "disable" ? 'noB' : 'B');
-    if (!isDefault(preset, '')) parts.push(preset);
-    if (!isDefault(gop, '')) parts.push("gop" + gop);
-    if (!isDefault(framerate, '')) parts.push(framerate + "fps");
-    if (!isDefault(hdr, '')) parts.push(hdr);
-    if (!isDefault(time_start, '') || !isDefault(time_end, '')) {
-        let tstr = (time_start ? ("from" + time_start.replace(/:/g, "")) : "") + (time_end ? ("to" + time_end.replace(/:/g, "")) : "");
-        parts.push(tstr);
-    }
-
-    return (parts.length > 0 ? parts.join('_') : "output") + ".mp4";
-}
-
 // 获取视频码控参数
 function getRateControlArgs(mode) {
     if (!mode) return { args: '', rcval: '' };
@@ -275,36 +239,6 @@ function getRateControlArgs(mode) {
             return { args: other ? ` ${other}` : '', rcval: other || '' };
     }
     return { args: '', rcval: '' };
-}
-
-function generateCommand() {
-    const enableVideo = document.getElementById('enable_video').checked;
-    const enableAudio = document.getElementById('enable_audio').checked;
-    const time_start = document.getElementById('time_start').value.trim();
-    const time_end = document.getElementById('time_end').value.trim();
-    const inputFile = document.getElementById('inputFile').value.trim();
-    let outputFile = document.getElementById('outputFile').value.trim();
-
-    // 决定主模式
-    let mode = "none";
-    if (enableVideo && !enableAudio) mode = "video";
-    else if (!enableVideo && enableAudio) mode = "audio";
-    else if (enableVideo && enableAudio) {
-        // 取当前激活tab
-        mode = document.getElementById('tabVideoBtn').classList.contains('active') ? "video" : "audio";
-    }
-
-    let cmd = "";
-
-    if (mode === "video") {
-        cmd = GenerateVideoCommand({ enableVideo, enableAudio, time_start, time_end, inputFile, outputFile });
-        document.getElementById('command').innerText = cmd;
-    } else if (mode === "audio") {
-        cmd = GenerateAudioCommand({ enableVideo, enableAudio, time_start, time_end, inputFile, outputFile });
-        document.getElementById('command').innerText = cmd;
-    } else {
-        document.getElementById('command').innerText = '请至少启用视频或音频转码';
-    }
 }
 
 // 复制命令
